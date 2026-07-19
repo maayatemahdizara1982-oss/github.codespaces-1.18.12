@@ -1,0 +1,38 @@
+# Gradle
+.gradle/
+build/
+*.apk
+*.ap_
+*.aab
+
+# Android Studio
+.idea/
+.DS_Store
+*.iml
+*.iws
+*.ipr
+
+# Local properties
+local.properties
+gradle.properties
+
+# Keystore files
+*.keystore
+*.jks
+*.key
+
+# Signing
+signing.properties
+
+# Build artifacts
+out/
+
+# Misc
+*.log
+*.swp
+*.swo
+*~
+.classpath
+.project
+.settings/
+bin/
