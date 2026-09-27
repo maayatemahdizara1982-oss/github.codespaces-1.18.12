@@ -21,11 +21,9 @@ jobs:
       with:
         cmdline-tools-version: 'latest'
         log-accepted-licenses: true
+  - name: Build with Gradle
+    run: gradle assembleRelease
 
-    - name: Build with Gradle
-  run: |
-    chmod +x gradlew
-    ./gradlew assembleRelease
     - name: Sign APK
       uses: r0adkll/sign-android-release@v1
       with:
