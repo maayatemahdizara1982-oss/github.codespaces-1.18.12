@@ -1,0 +1,13 @@
+name: Test Condivisione Amazon Mehdi
+
+on:
+  workflow_dispatch:
+
+jobs:
+  test_job:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Mostra Link Amazon
+        run: echo "Nuova pagina creata con successo per l'account MEHDI MAAIATE!"
