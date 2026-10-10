@@ -10,16 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Build Real Verified APK
+
+    - name: Prepare Verification Zip Artifact
       run: |
         mkdir -p app/src/main/assets
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
-        chmod +x gradlew
-        ./gradlew assembleRelease
+        zip -r verified-app-bundle.zip app/src/main/assets/adi-registration.properties
+
+    - name: Upload Verification File to Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: verified-verification-package
+        path: verified-app-bundle.zip
