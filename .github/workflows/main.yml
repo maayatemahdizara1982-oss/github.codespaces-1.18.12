@@ -17,8 +17,9 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Inject Google Token and Sign
+    - name: Create Properties and Build Real APK
       run: |
         mkdir -p app/src/main/assets
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
-        echo "Firma digitale GitHub completata con successo"
+        chmod +x gradlew
+        ./gradlew assembleRelease
