@@ -6,20 +6,21 @@ on:
   workflow_dispatch:
 
 jobs:
-  build:
+  sign:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    
+
     - name: Set up JDK 17
       uses: actions/setup-java@v3
       with:
         java-version: '17'
         distribution: 'temurin'
-        
-    - name: Create Properties and Build Real APK
+
+    - name: Setup Android SDK and apksigner
+      uses: android-actions/setup-android@v3
+
+    - name: Sign APK with Google Token
       run: |
-        mkdir -p app/src/main/assets
-        echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
-        chmod +x gradlew
-        ./gradlew assembleRelease
+        apksigner sign --ks app/src/main/assets/myapp_firmato_ok.apk --ks-pass pass:mehdi1982 --out app/src/main/assets/myapp_verificato_google.apk app/src/main/assets/myapp_firmato_ok.apk
+        echo "Firma completata correttamente"
