@@ -11,14 +11,15 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Set up JDK 17 with Java v5
+    - name: Set up JDK 17
       uses: actions/setup-java@v5
       with:
         java-version: '17'
         distribution: 'temurin'
         
-    - name: Inject Google Token and Sign APK
+    - name: Build Real Verified APK
       run: |
         mkdir -p app/src/main/assets
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
-        echo "Firma digitale eseguita con successo con Java v5"
+        chmod +x gradlew
+        ./gradlew assembleRelease
