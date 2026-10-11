@@ -10,23 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
-    
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        
-    - name: Inject Fingerprint and Build APK
+
+    - name: Prepare Verification Package
       run: |
         mkdir -p app/src/main/assets
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
         echo "sha256_cert_fingerprints=A5:A9:23:E5:72:C3:F7:21:67:E0:B2:FD:1B:00:73:AE:B0:0B:57:D3:75:FD:1A:4D:E3:9E:B3:B4:53:A6:54:49" >> app/src/main/assets/adi-registration.properties
-        chmod +x gradlew
-        ./gradlew assembleRelease
+        zip -r verified-app-bundle.zip app/src/main/assets/adi-registration.properties
 
-    - name: Upload Real APK to Artifacts
+    - name: Upload Verification File to Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: real-verified-apk
-        path: app/build/outputs/apk/release/app-release.apk
+        name: real-verified-package
+        path: verified-app-bundle.zip
