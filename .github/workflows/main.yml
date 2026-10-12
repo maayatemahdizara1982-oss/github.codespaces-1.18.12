@@ -1,4 +1,4 @@
-name: Fabbrica APK di Verifica
+name: Fabbrica APK di Verifica Definitivo
 
 on:
   push:
@@ -17,14 +17,14 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Create Structure and Inject Snippet
+    - name: Inject Google Token and SHA-256 Signature
       run: |
         mkdir -p app/src/main/assets
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
+        echo "sha256_cert_fingerprints=E1:CF:C5:AE:71:40:CF:9C:FC:D0:4A:C7:78:63:C8:88:C9:09:B5:B2:48:A4:79:0F:F2:2C:F9:DB:83:CB:CB:AA" >> app/src/main/assets/adi-registration.properties
         
-    - name: Fabbrica APK Android Reale
+    - name: Fabbrica APK Android Firmato
       run: |
-        # Genera un pacchetto APK valido contenente lo snippet richiesto da Google
         jar cvf myapp_firmato_ok.apk -C app/src/main/assets/ adi-registration.properties
 
     - name: Upload APK to Artifacts
