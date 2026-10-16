@@ -1,1 +1,1 @@
-E1:CF:C5:AE:71:40:CF:9C:FC:D0:4A:C7:78:63:C8:88:C9:09:B5:B2:48:A4:79:0F:F2:2C:F9:DB:83:CB:CB:AA
+#https://github.com/maayatemahdizara1982-oss/github.codespaces-1.18.12/tree/adi-registration.properties
