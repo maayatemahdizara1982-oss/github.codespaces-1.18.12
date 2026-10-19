@@ -22,15 +22,14 @@ jobs:
 
     - name: Create Genuine Android Project Structure
       run: |
-        # 1. Creazione dell'albero dei file di un vero progetto Android
         mkdir -p app/src/main/assets
         mkdir -p app/src/main/res/values
         
-        # 2. Iniezione del token di sblocco e dell'impronta corretta
+        # Iniezione del token di sblocco e dell'impronta corretta
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
         echo "sha256_cert_fingerprints=E1:CF:C5:AE:71:40:CF:9C:FC:D0:4A:C7:78:63:C8:88:C9:09:B5:B2:48:A4:79:0F:F2:2C:F9:DB:83:CB:CB:AA" >> app/src/main/assets/adi-registration.properties
         
-        # 3. Scrittura dei file di configurazione con enableSplit = true richiesto da Google
+        # Configurazione nativa obbligatoria con enableSplit = true come richiesto da Google
         cat <<EOF > settings.gradle
         rootProject.name = "MyFoodReceiptApp"
         include ':app'
@@ -68,7 +67,6 @@ jobs:
         }
         EOF
         
-        # 4. Scrittura del file Manifest e delle stringhe obbligatorie per evitare errori di formato
         cat <<EOF > app/src/main/AndroidManifest.xml
         <manifest xmlns:android="http://getandroid.com">
             <application android:label="@string/app_name" android:hasCode="false">
@@ -82,7 +80,6 @@ jobs:
         </resources>
         EOF
         
-        # 5. Generazione dello strumento Gradle Wrapper ufficiale
         gradle wrapper --gradle-version 8.5
 
     - name: Execute Native App Bundle Compilation
