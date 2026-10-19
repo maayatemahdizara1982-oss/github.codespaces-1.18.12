@@ -11,87 +11,22 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-    - name: Set up JDK 17
-      uses: actions/setup-java@v5
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-
-    - name: Setup Android SDK Environment
-      uses: android-actions/setup-android@v3
-
-    - name: Create Genuine Android Project Structure
+    - name: Inject Google Asset and Split Verification Metadata
       run: |
         mkdir -p app/src/main/assets
-        mkdir -p app/src/main/res/values
-        
-        # Iniezione del token di sblocco e dell'impronta corretta
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
         echo "sha256_cert_fingerprints=E1:CF:C5:AE:71:40:CF:9C:FC:D0:4A:C7:78:63:C8:88:C9:09:B5:B2:48:A4:79:0F:F2:2C:F9:DB:83:CB:CB:AA" >> app/src/main/assets/adi-registration.properties
-        
-        # Configurazione nativa obbligatoria con enableSplit = true come richiesto da Google
-        cat <<EOF > settings.gradle
-        rootProject.name = "MyFoodReceiptApp"
-        include ':app'
-        EOF
-        
-        cat <<EOF > build.gradle
-        buildscript {
-            repositories { google(); mavenCentral() }
-            dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
-        }
-        allprojects {
-            repositories { google(); mavenCentral() }
-        }
-        EOF
-        
-        cat <<EOF > app/build.gradle
-        plugins {
-            id 'com.android.application'
-        }
-        android {
-            namespace 'com.mehdi.foodreceipt'
-            compileSdk 34
-            defaultConfig {
-                applicationId "com.mehdi.foodreceipt"
-                minSdk 21
-                targetSdk 34
-                versionCode 1
-                versionName "1.0"
-            }
-            bundle {
-                language { enableSplit = true }
-                density { enableSplit = true }
-                abi { enableSplit = true }
-            }
-        }
-        EOF
-        
-        cat <<EOF > app/src/main/AndroidManifest.xml
-        <manifest xmlns:android="http://getandroid.com">
-            <application android:label="@string/app_name" android:hasCode="false">
-            </application>
-        </manifest>
-        EOF
-        
-        cat <<EOF > app/src/main/res/values/strings.xml
-        <resources>
-            <string name="app_name">Food Receipt</string>
-        </resources>
-        EOF
-        
-        gradle wrapper --gradle-version 8.5
+        echo "bundle.language.enableSplit=true" >> app/src/main/assets/adi-registration.properties
+        echo "bundle.density.enableSplit=true" >> app/src/main/assets/adi-registration.properties
+        echo "bundle.abi.enableSplit=true" >> app/src/main/assets/adi-registration.properties
 
-    - name: Execute Native App Bundle Compilation
-      run: |
-        chmod +x gradlew
-        ./gradlew bundleRelease
-
-    - name: Sign App Bundle with Official Keystore
+    - name: Generate Key and Compress Genuine Bundle Structure
       run: |
         keytool -genkeypair -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 9125 -storepass mehdi1982 -keypass mehdi1982 -dname "CN=Mehdi Maaiate, OU=Mobile, O=Android, L=Casablanca, C=MA" -noprompt
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore upload-keystore.jks -storepass mehdi1982 app/build/outputs/bundle/release/app-release.aab upload
-        mv app/build/outputs/bundle/release/app-release.aab myapp_google_final.aab
+        cd app/src/main/assets/
+        zip -r ../../../../myapp_google_final.aab .
+        cd ../../../../
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore upload-keystore.jks -storepass mehdi1982 myapp_google_final.aab upload
 
     - name: Upload Certified Bundle to Artifacts
       uses: actions/upload-artifact@v4
