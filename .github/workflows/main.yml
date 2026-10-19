@@ -17,24 +17,45 @@ jobs:
         java-version: '17'
         distribution: 'temurin'
 
-    - name: Setup Android SDK
+    - name: Setup Android SDK Environment
       uses: android-actions/setup-android@v3
 
-    - name: Create Native App Structure and Split Config
+    - name: Create Genuine App Structure and Inject Splits
       run: |
+        # Creazione della struttura nativa pulita richiesta da Google
         mkdir -p app/src/main/assets
+        
+        # Iniezione dei metadati ufficiali e del token di sblocco
         echo "registration.token=CEDDQ5GFPSFECAAAAAAAAAAAAAAA" > app/src/main/assets/adi-registration.properties
         echo "sha256_cert_fingerprints=E1:CF:C5:AE:71:40:CF:9C:FC:D0:4A:C7:78:63:C8:88:C9:09:B5:B2:48:A4:79:0F:F2:2C:F9:DB:83:CB:CB:AA" >> app/src/main/assets/adi-registration.properties
         
-        # Configurazione nativa build.gradle con enableSplit richiesto da Google
+        # Generazione dei file strutturali nativi di configurazione con enableSplit = true
+        cat <<EOF > settings.gradle
+        rootProject.name = "MyFoodReceiptApp"
+        include ':app'
+        EOF
+        
+        cat <<EOF > build.gradle
+        buildscript {
+            repositories { google(); mavenCentral() }
+            dependencies { classpath 'com.android.tools.build:gradle:8.2.2' }
+        }
+        allprojects {
+            repositories { google(); mavenCentral() }
+        }
+        EOF
+        
         cat <<EOF > app/build.gradle
-        apply plugin: 'com.android.application'
+        plugins {
+            id 'com.android.application'
+        }
         android {
-            compileSdkVersion 34
+            namespace 'com.mehdi.foodreceipt'
+            compileSdk 34
             defaultConfig {
                 applicationId "com.mehdi.foodreceipt"
-                minSdkVersion 21
-                targetSdkVersion 34
+                minSdk 21
+                targetSdk 34
                 versionCode 1
                 versionName "1.0"
             }
@@ -45,13 +66,28 @@ jobs:
             }
         }
         EOF
+        
+        # Creazione del file Manifest minimo obbligatorio per identificare il formato
+        mkdir -p app/src/main
+        cat <<EOF > app/src/main/AndroidManifest.xml
+        <manifest xmlns:android="http://getandroid.com">
+            <application android:label="Food Receipt"/>
+        </manifest>
+        EOF
+        
+        # Generazione dello strumento di avvio gradlew ufficiale di Google
+        gradle wrapper --gradle-version 8.5
 
-    - name: Generate Keystore and Build Certified AAB
+    - name: Execute Native App Bundle Compilation (AAB)
+      run: |
+        chmod +x gradlew
+        ./gradlew bundleRelease
+
+    - name: Sign App Bundle with Official upload Keystore
       run: |
         keytool -genkeypair -v -keystore upload-keystore.jks -alias upload -keyalg RSA -keysize 2048 -validity 9125 -storepass mehdi1982 -keypass mehdi1982 -dname "CN=Mehdi Maaiate, OU=Mobile, O=Android, L=Casablanca, C=MA" -noprompt
-        zip -r bundle-unsigned.aab app/
-        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore upload-keystore.jks -storepass mehdi1982 bundle-unsigned.aab upload
-        mv bundle-unsigned.aab myapp_google_final.aab
+        jarsigner -verbose -sigalg SHA256withRSA -digestalg SHA-256 -keystore upload-keystore.jks -storepass mehdi1982 app/build/outputs/bundle/release/app-release.aab upload
+        mv app/build/outputs/bundle/release/app-release.aab myapp_google_final.aab
 
     - name: Upload Certified Bundle to Artifacts
       uses: actions/upload-artifact@v4
